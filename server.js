@@ -11,7 +11,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const memory = {}; 
 
 app.post('/ask', async (req, res) => {
-  const { question, playerId } = req.body;
+  const { question, playerId, botpersonality } = req.body;
   if (!playerId || !question) return res.status(400).send('Missing playerId or question');
 
  
@@ -20,12 +20,21 @@ app.post('/ask', async (req, res) => {
 
 
   if (memory[playerId].length > 100) memory[playerId].shift();
+  
+  const contents = [];
 
-
-  const contents = memory[playerId].map(entry => ({
-    role: entry.role === 'user' ? 'user' : 'model',
-    parts: [{ text: entry.text }]
-  }));
+  contents.push({
+    role: 'user',
+    parts: [{
+      text: botpersonality || "Act like yourself."
+    }]
+  });
+  contents.push(
+    ...memory[playerId].map(entry => ({
+      role: entry.role === 'user' ? 'user' : 'model',
+      parts: [{ text: entry.text }]
+    }))
+  );
   try {
     const response = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
