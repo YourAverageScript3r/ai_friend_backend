@@ -19,7 +19,7 @@ app.post('/ask', async (req, res) => {
   memory[playerId].push({ role: 'user', text: question });
 
 
-  if (memory[playerId].length > 10) memory[playerId].shift();
+  if (memory[playerId].length > 100) memory[playerId].shift();
 
 
   const contents = memory[playerId].map(entry => ({
@@ -36,7 +36,7 @@ app.post('/ask', async (req, res) => {
  
 
     memory[playerId].push({ role: 'model', text: answer });
-    if (memory[playerId].length > 10) memory[playerId].shift();
+    if (memory[playerId].length > 100) memory[playerId].shift();
 
     res.json({ answer });
   } catch (error) {
