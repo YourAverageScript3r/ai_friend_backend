@@ -22,7 +22,7 @@ app.post('/ask', async (req, res) => {
   if (memory[playerId].length > 10) memory[playerId].shift();
 
 
-  const contents = conversationMemory.map(entry => ({
+  const contents = memory[playerId].map(entry => ({
     role: entry.role === 'user' ? 'user' : 'model',
     parts: [{ text: entry.text }]
   }));
