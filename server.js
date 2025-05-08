@@ -7,16 +7,19 @@ app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const conversationMemory = [];
+
+const memory = {}; 
 
 app.post('/ask', async (req, res) => {
-  const question = req.body.question;
-  conversationMemory.push({ role: 'user', text: question });
+  const { question, playerId } = req.body;
+  if (!playerId || !question) return res.status(400).send('Missing playerId or question');
+
+ 
+  if (!memory[playerId]) memory[playerId] = [];
+  memory[playerId].push({ role: 'user', text: question });
 
 
-  if (conversationMemory.length > 10) {
-    conversationMemory.shift(); 
-  }
+  if (memory[playerId].length > 10) memory[playerId].shift();
 
 
   const contents = conversationMemory.map(entry => ({
@@ -32,13 +35,8 @@ app.post('/ask', async (req, res) => {
     const answer = response.data.candidates[0].content.parts[0].text;
  
 
-
-    conversationMemory.push({ role: 'model', text: answer });
-
-
-    if (conversationMemory.length > 10) {
-      conversationMemory.shift();
-    }
+    memory[playerId].push({ role: 'model', text: answer });
+    if (memory[playerId].length > 10) memory[playerId].shift();
 
     res.json({ answer });
   } catch (error) {
