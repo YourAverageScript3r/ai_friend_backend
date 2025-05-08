@@ -9,6 +9,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 
 const memory = {}; 
+const personaMemory = {};
 
 app.post('/ask', async (req, res) => {
   const { question, playerId, botpersonality } = req.body;
@@ -16,19 +17,30 @@ app.post('/ask', async (req, res) => {
 
  
   if (!memory[playerId]) memory[playerId] = [];
-  memory[playerId].push({ role: 'user', text: question });
+  let shouldInsertPersona = false;
+  if (persona && persona !== personaMemory[playerId]) {
+    personaMemory[playerId] = botpersonality;
+    shouldInsertPersona = true;
+  }
 
+  memory[playerId].push({ role: 'user', text: question });
+  
 
   if (memory[playerId].length > 100) memory[playerId].shift();
-  
+
   const contents = [];
 
-  contents.push({
-    role: 'user',
-    parts: [{
-      text: botpersonality || "Act like yourself."
-    }]
-  });
+  if (shouldInsertPersona) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: botpersonality }]
+    });
+  } else if (!personaMemory[playerId]) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: "Act yourself" }]
+    });
+  }
   contents.push(
     ...memory[playerId].map(entry => ({
       role: entry.role === 'user' ? 'user' : 'model',
