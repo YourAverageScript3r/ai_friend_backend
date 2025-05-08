@@ -17,6 +17,14 @@ app.post('/ask', async (req, res) => {
 
  
   if (!memory[playerId]) memory[playerId] = [];
+
+
+  memory[playerId].push({ role: 'user', text: question });
+  
+
+  if (memory[playerId].length > 100) memory[playerId].shift();
+
+  const contents = [];
   if (botpersonality && botpersonality !== personaMemory[playerId]) {
     personaMemory[playerId] = botpersonality;
     contents.push({
@@ -30,14 +38,6 @@ app.post('/ask', async (req, res) => {
       parts: [{ text: `Your Personality: ${personaMemory[playerId]}. Answer with this personality` }]
     });
   }
-
-  memory[playerId].push({ role: 'user', text: question });
-  
-
-  if (memory[playerId].length > 100) memory[playerId].shift();
-
-  const contents = [];
-
 
   contents.push(
     ...memory[playerId].map(entry => ({
