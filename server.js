@@ -17,10 +17,18 @@ app.post('/ask', async (req, res) => {
 
  
   if (!memory[playerId]) memory[playerId] = [];
-  let shouldInsertPersona = false;
   if (botpersonality && botpersonality !== personaMemory[playerId]) {
     personaMemory[playerId] = botpersonality;
-    shouldInsertPersona = true;
+    contents.push({
+      role: 'user',
+      parts: [{ text: `Your Personality: ${botpersonality}. Answer with this personality` }]
+    });
+  } else if (personaMemory[playerId]) {
+   
+    contents.push({
+      role: 'user',
+      parts: [{ text: `Your Personality: ${personaMemory[playerId]}. Answer with this personality` }]
+    });
   }
 
   memory[playerId].push({ role: 'user', text: question });
@@ -30,17 +38,7 @@ app.post('/ask', async (req, res) => {
 
   const contents = [];
 
-  if (shouldInsertPersona) {
-    contents.push({
-      role: 'user',
-      parts: [{ text: botpersonality }]
-    });
-  } else if (!personaMemory[playerId]) {
-    contents.push({
-      role: 'user',
-      parts: [{ text: "Act yourself" }]
-    });
-  }
+
   contents.push(
     ...memory[playerId].map(entry => ({
       role: entry.role === 'user' ? 'user' : 'model',
