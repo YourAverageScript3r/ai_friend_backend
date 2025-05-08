@@ -18,7 +18,7 @@ app.post('/ask', async (req, res) => {
  
   if (!memory[playerId]) memory[playerId] = [];
   let shouldInsertPersona = false;
-  if (persona && persona !== personaMemory[playerId]) {
+  if (botpersonality && botpersonality !== personaMemory[playerId]) {
     personaMemory[playerId] = botpersonality;
     shouldInsertPersona = true;
   }
