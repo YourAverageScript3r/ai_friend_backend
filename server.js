@@ -11,6 +11,13 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const memory = {}; 
 const personaMemory = {};
 
+
+setInterval(() => {
+  const used = process.memoryUsage().heapUsed / 1024 / 1024;
+  console.log(`Memory usage: ${Math.round(used * 100) / 100} MB`);
+}, 10000);
+
+
 app.post('/ask', async (req, res) => {
   const { question, playerId, botpersonality } = req.body;
   if (!playerId || !question) return res.status(400).send('Missing playerId or question');
