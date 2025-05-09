@@ -25,18 +25,24 @@ app.post('/ask', async (req, res) => {
   if (memory[playerId].length > 100) memory[playerId].shift();
 
   const contents = [];
+   let personaChanged = false;
   if (botpersonality && botpersonality !== personaMemory[playerId]) {
     personaMemory[playerId] = botpersonality;
-    contents.push({
-      role: 'user',
-      parts: [{ text: `Your Personality: ${botpersonality}. Answer with this personality` }]
-    });
-  } else if (personaMemory[playerId]) {
-   
-    contents.push({
-      role: 'user',
-      parts: [{ text: `Your Personality: ${personaMemory[playerId]}. Answer with this personality` }]
-    });
+    personaChanged = true;
+  }
+ if (personaMemory[playerId]) {
+    
+    if (personaChanged) {
+      contents.push({
+        role: 'user',
+        parts: [{ text: `From now on, act with this personality: ${personaMemory[playerId]}` }]
+      });
+    } else {
+      contents.push({
+        role: 'user',
+        parts: [{ text: `Remember your personality: ${personaMemory[playerId]}` }]
+      });
+    }
   }
 
   contents.push(
